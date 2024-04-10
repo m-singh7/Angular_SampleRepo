@@ -22,13 +22,13 @@ export class DashboardComponent implements OnInit {
     pageIndex: number = DefaultNumber.Zero;
     gridSize = "303px";
     pageSizeList = environment.pageSizeList;
-    selectedAccountName: any;
-    selectedAccountId: any;
-    accountName: any;
+    selectedAccountName: string;
+    selectedAccountId: string;
+    accountName: string;
     ModelrefngbModel: NgbModalRef;
-    searchParameter: any = "";
-    searchtatusParameter: any = "";
-    userData: any = [];
+    searchParameter: string = "";
+    searchtatusParameter: string = "";
+    userData: string[] = [];
     emptyData = new MatTableDataSource([{ empty: "row" }]);
     displayColumns: string[] = [
         "accountname",
@@ -40,10 +40,10 @@ export class DashboardComponent implements OnInit {
         "phone",
         "action"
     ];
-    userId: any;
-    filtereddataSource: any = [];
+    userId: number;
+    filtereddataSource: FilterDataModel[] = [];
     closeResult = "";
-    accountsData: any = [];
+    accountsData: AccountDetailsModel[] = [];
     filterModel: StatusFilterModel;
     recordCount: number = DefaultNumber.Zero;
     @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator;
@@ -55,7 +55,7 @@ export class DashboardComponent implements OnInit {
         this.filterModel = new StatusFilterModel();
     }
     @HostListener('window:popstate', ['$event'])
-    onPopState(event: any) {
+    onPopState(event: Event) {
         this._router.navigate(["/auth/login"]);
     }
     ngOnInit(): void {
@@ -92,7 +92,7 @@ export class DashboardComponent implements OnInit {
     }
 
     //open Modal method
-    open(content: any, accountId: any, accountName: any) {
+    open(content: HTMLCollection, accountId: string, accountName: string) {
         this.accountName = accountName;
         this.selectedAccountName = accountName;
         this.selectedAccountId = accountId;
@@ -113,7 +113,7 @@ export class DashboardComponent implements OnInit {
     }
 
     // Change pages in list using paginator method
-    switchPage(event: any): void {
+    switchPage(event: Event): void {
 
         this.filterModel.pageNumber = event.pageIndex + DefaultNumber.One;
         this.filterModel.pageSize = event.pageSize;
@@ -125,7 +125,7 @@ export class DashboardComponent implements OnInit {
     }
 
     //Show account details method
-    viewAccountDetails(accountId: any) {
+    viewAccountDetails(accountId: string) {
 
         this._router.navigate(["platform/dashboard/account-management"], {
             queryParams: { accountId: this._sharedService.encode(accountId) },
@@ -137,10 +137,10 @@ export class DashboardComponent implements OnInit {
 
         this._manageAccountDataService
             .GetAllAccounts(this.filterModel)
-            .subscribe((data: any) => {
+            .subscribe((data: AccountDetailsModel) => {
                 let res = JSON.parse(data);
                 if (res) {
-                    const list = res.result as Array<any>;
+                    const list = res.result as Array<AccountDetailsModel>;
 
                     this.accountsData = list;
                     this.filtereddataSource = this.accountsData;
@@ -154,11 +154,11 @@ export class DashboardComponent implements OnInit {
     //get all data of list 
     getAllData() {
         this.filterModel.status = this.searchtatusParameter;
-        this._manageUserService.GetAllData(this.filterModel).subscribe((data: any) => {
+        this._manageUserService.GetAllData(this.filterModel).subscribe((data) => {
 
             let res = data;
             if (res) {
-                const list = res.result as Array<any>;
+                const list = res.result as Array<AccountDetailsModel>;
 
                 this.accountsData = list;
                 this.filtereddataSource = list;
@@ -170,7 +170,7 @@ export class DashboardComponent implements OnInit {
     }
 
     //open dropdown popup
-    handleStatusSelected(event: any) {
+    handleStatusSelected(event: string) {
         this.searchtatusParameter = event;
         this.getAllData();
     }
@@ -222,7 +222,7 @@ export class DashboardComponent implements OnInit {
             this.filtereddataSource = data;
             return;
         }
-        this.accountsData = data.sort((a: any, b: any) => {
+        this.accountsData = data.sort((a: AccountDetailsModel, b: AccountDetailsModel) => {
             const isAsc = sort.direction === "asc";
             switch (sort.active) {
                 case "accountname":
