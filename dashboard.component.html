@@ -1,0 +1,165 @@
+<div class="dashboard-wrapper">
+    <section class="section-space">
+        <div class="row dashboard-state-rw">
+            <div class="col-lg-6">
+                <app-account-states (statusSelected)="handleStatusSelected($event)"></app-account-states>
+            </div>
+            <div class="col-lg-6">
+                <app-recent-changes></app-recent-changes>
+            </div>
+        </div>
+    </section>
+    <!--Manage user Account Details-->
+    <section class="section-space">
+        <div class="table-listing-wrapper">
+            <div class="account-tbl-hd d-flex">
+                <div class="left-col flex-fill d-flex align-items-center">
+                    <h2>Accounts</h2>
+                </div>
+            </div>
+            <div class="table-responsive mb-2">
+                <mat-table id="matTable" class="mat-elevation-z8 page-grid patient-table"
+                    [dataSource]="accountsData.length > 0 ?  accountsData: emptyData" (matSortChange)="sortData($event)"
+                    matSort [style.height]="gridSize">
+
+                    <ng-container matColumnDef="accountname">
+                        <mat-header-cell *matHeaderCellDef mat-sort-header style="min-width: 250px;">
+                            Account Name
+                        </mat-header-cell>
+                        <mat-cell *matCellDef="let element" style="min-width: 250px;">
+                            <div class="dropdown-btn-blc d-inline-flex align-items-center">
+                                <div ngbDropdown class="d-inline-block">
+                                    <button type="button"
+                                        class="btn btn-link d-inline-flex align-items-center text-start p-0 profile-btn"
+                                        id="dropdownBasic1" ngbDropdownToggle>
+                                        <span class="material-symbols-outlined icon">
+                                            keyboard_arrow_down
+                                        </span>
+                                        <span class="lbl" aria-checked="true">
+                                            {{element.accountName}}
+                                        </span>
+                                    </button>
+                                    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+
+
+                                        <button (click)="viewAccountDetails(element.accountId)" ngbDropdownItem
+                                            class="d-flex align-items-center">
+                                            <span class="material-symbols-outlined">
+                                                edit_note
+                                            </span>
+                                            View Account
+                                        </button>
+                                        <button (click)="open(logouttModal,element.accountId,element.accountName)"
+                                            ngbDropdownItem class="d-flex align-items-center">
+                                            <span class="material-symbols-outlined">
+                                                bar_chart
+                                            </span>
+                                            Sign In as Clerical User
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </mat-cell>
+                    </ng-container>
+                    <ng-container matColumnDef="accountId">
+                        <mat-header-cell *matHeaderCellDef mat-sort-header>AccountId</mat-header-cell>
+                        <mat-cell *matCellDef="let element" class="permission-tags flex-wrap">
+                            {{element.accountId}}
+                        </mat-cell>
+                    </ng-container>
+                    <ng-container matColumnDef="client">
+                        <mat-header-cell *matHeaderCellDef mat-sort-header>Client</mat-header-cell>
+                        <mat-cell *matCellDef="let element">{{element.client}}</mat-cell>
+                    </ng-container>
+                    <ng-container matColumnDef="state">
+                        <mat-header-cell *matHeaderCellDef mat-sort-header
+                            class="justify-content-center">State</mat-header-cell>
+                        <mat-cell *matCellDef="let element"
+                            class="justify-content-center">{{element.accountState}}</mat-cell>
+                    </ng-container>
+                    <ng-container matColumnDef="stateChanged">
+                        <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-content-center">
+                            State
+                            Changed
+                        </mat-header-cell>
+                        <mat-cell *matCellDef="let element" class="justify-content-center">
+                            <ng-container *ngIf="element.accountStateModifiedDate">
+                                {{ element.accountStateModifiedDate | date:'MM/dd/yyyy' }}
+                            </ng-container>
+                        </mat-cell>
+                    </ng-container>
+                    <ng-container matColumnDef="platformPartner">
+                        <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-content-center"
+                            class="justify-content-center">Platform Partner</mat-header-cell>
+                        <mat-cell *matCellDef="let element"
+                            class="justify-content-center">{{element.platformPartner}}</mat-cell>
+                    </ng-container>
+                    <ng-container matColumnDef="phone">
+                        <mat-header-cell *matHeaderCellDef mat-sort-header class="justify-content-center"
+                            class="justify-content-center">Phone</mat-header-cell>
+                        <mat-cell *matCellDef="let element"
+                            class="justify-content-center">{{element.accountPhoneNumber}}</mat-cell>
+                    </ng-container>
+                    <ng-container matColumnDef="action">
+                        <mat-header-cell *matHeaderCellDef class="justify-content-center">Action</mat-header-cell>
+                        <mat-cell *matCellDef="let element" class="justify-content-center">
+                            <button (click)="viewAccountDetails(element.accountId)"
+                                class="btn btn-primary rounded-circle d-inline-flex align-items-center justify-content-center me-2"
+                                ngbTooltip="View">
+                                <span class="material-symbols-outlined">
+                                    visibility
+                                </span>
+                            </button>
+                            <button (click)="viewAccountDetails(element.accountId)"
+                                class="btn btn-secondary rounded-circle d-inline-flex align-items-center justify-content-center me-2"
+                                ngbTooltip="Edit">
+                                <span class="material-symbols-outlined">
+                                    border_color
+                                </span>
+                            </button>
+
+                        </mat-cell>
+                    </ng-container>
+                    <ng-container matColumnDef="empty-row">
+                        <mat-cell *matCellDef="let element">No Data</mat-cell>
+                    </ng-container>
+
+                    <mat-header-row *matHeaderRowDef="displayColumns"></mat-header-row>
+                    <mat-row
+                        *matRowDef="let row; columns: accountsData.length > 0 && accountsData.length > 0 ? displayColumns : ['empty-row'];"></mat-row>
+                </mat-table>
+            </div>
+            <div class="table-pagination-wrapper text-end">
+                <mat-paginator [length]="recordCount" [pageSize]="pageSize" [pageIndex]="pageIndex"
+                    [pageSizeOptions]="pageSizeList" showFirstLastButtons (page)="switchPage($event)">
+                </mat-paginator>
+            </div>
+        </div>
+    </section>
+</div>
+<!--Logout popup Modal-->
+<ng-template #logouttModal let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title flex-fill text-center" id="modal-basic-title">Confirm</h4>
+
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+
+    </div>
+    <div class="modal-body text-center">
+
+        <div class="modal-body">
+            <h4>Press Access Account to log in as support user for ({{accountName}})</h4>
+        </div>
+
+        <div class="modal-footer modal-btns d-flex">
+            <button class="btn btn-primary-gradient flex-fill" (click)="modal.dismiss('Cross click')">
+                Cancel
+            </button>
+            <button class="btn btn-primary-gradient flex-fill" (click)="signInAsClericalUser()">
+                Access Account
+            </button>
+
+        </div>
+    </div>
+</ng-template>
